@@ -50,16 +50,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return <ToastContext.Provider value={vrijednost}>{children}</ToastContext.Provider>
 }
 
-/** Prikaz toasta – postavlja se unutar okvira telefona, iznad donje navigacije. */
+/** Prikaz toasta (snackbar) – donji desni ugao, kao u većini web aplikacija. */
 export function ToastViewport() {
   const { toast, zatvori } = useContext(ToastContext)!
   const Ikona = toast ? IKONE[toast.tip] : null
   return (
-    <div aria-live="polite" role="status" className="pointer-events-none absolute inset-x-3 bottom-24 z-40 flex justify-center">
+    <div aria-live="polite" role="status" className="pointer-events-none fixed right-4 bottom-4 z-[70] flex w-[min(28rem,calc(100vw-2rem))] justify-end sm:right-6 sm:bottom-6">
       {toast && Ikona && (
         <div
           key={toast.id}
-          className="toast-ulaz pointer-events-auto flex w-full items-center gap-3 rounded-2xl bg-fg py-2 pr-2 pl-4 text-bg shadow-lg"
+          className="ulaz pointer-events-auto flex w-full items-center gap-3 rounded-lg bg-fg py-2 pr-2 pl-4 text-bg shadow-[0_8px_24px_-8px_rgb(0_0_0/0.35)]"
         >
           <Ikona aria-hidden className="size-5 shrink-0" />
           <p className="flex-1 py-1.5 text-sm font-medium">{toast.poruka}</p>
@@ -70,12 +70,12 @@ export function ToastViewport() {
                 toast.akcija!.onClick()
                 zatvori()
               }}
-              className="min-h-11 rounded-xl px-3 text-sm font-bold underline underline-offset-2"
+              className="min-h-11 rounded-md px-3 text-sm font-bold underline underline-offset-2"
             >
               {toast.akcija.tekst}
             </button>
           )}
-          <button type="button" onClick={zatvori} aria-label="Zatvori obavještenje" className="grid size-11 shrink-0 place-items-center rounded-xl">
+          <button type="button" onClick={zatvori} aria-label="Zatvori obavještenje" className="grid size-11 shrink-0 place-items-center rounded-md">
             <X aria-hidden className="size-4" />
           </button>
         </div>

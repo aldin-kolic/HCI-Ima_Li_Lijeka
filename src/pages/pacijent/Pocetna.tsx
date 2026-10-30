@@ -1,198 +1,136 @@
-import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router'
-import { ChevronRight, ClipboardList, Cross, Moon, ScanBarcode, Search, X } from 'lucide-react'
+import { ClipboardList, Cross, ScanBarcode } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import { useToast } from '../../context/ToastContext'
-import { apoteke, cestoTrazeno, lijekPoId, type Lijek } from '../../data/mockData'
-import { formatKm, jeAktivna, mnozina, pretraziLijekove } from '../../lib/format'
-import { Dugme, OznakaRecept, cx } from '../../components/ui'
-
-const MAKS_PRIJEDLOGA = 6
+import { apoteke, apotekaPoId, cestoTrazeno, lijekPoId } from '../../data/mockData'
+import { jeAktivna, opisRoka, punNazivLijeka } from '../../lib/format'
+import { PretragaLijeka } from '../../components/PretragaLijeka'
+import { RedApoteke } from '../../components/RedApoteke'
+import { Dugme, OznakaRezervacije, PraznoStanje } from '../../components/ui'
 
 export default function Pocetna() {
   const navigate = useNavigate()
   const prikaziToast = useToast()
   const { rezervacije } = useApp()
-  const [upit, setUpit] = useState('')
-  const [otvoren, setOtvoren] = useState(false)
-  const [aktivni, setAktivni] = useState(-1)
   const [skenira, setSkenira] = useState(false)
-  const listaId = useId()
-
-  const prijedlozi = useMemo(() => pretraziLijekove(upit).slice(0, MAKS_PRIJEDLOGA), [upit])
-  const prikaziListu = otvoren && upit.trim().length > 0
-
-  const odaberi = (lijek: Lijek) => navigate(`/pacijent/pretraga?lijek=${lijek.id}`)
-
-  const naSubmit = (e: FormEvent) => {
-    e.preventDefault()
-    if (aktivni >= 0 && prijedlozi[aktivni]) return odaberi(prijedlozi[aktivni])
-    if (!upit.trim()) return
-    const svi = pretraziLijekove(upit)
-    if (svi.length === 1) return odaberi(svi[0])
-    navigate(`/pacijent/pretraga?q=${encodeURIComponent(upit.trim())}`)
-  }
-
-  const naTipku = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (!prikaziListu || prijedlozi.length === 0) return
-    if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      setAktivni((i) => (i + 1) % prijedlozi.length)
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      setAktivni((i) => (i <= 0 ? prijedlozi.length - 1 : i - 1))
-    } else if (e.key === 'Escape') {
-      setOtvoren(false)
-      setAktivni(-1)
-    }
-  }
 
   const dezurne = apoteke.filter((a) => a.dezurna).sort((a, b) => a.udaljenostKm - b.udaljenostKm)
-  const moje = rezervacije.filter((r) => r.moja && jeAktivna(r.status))
-  const spremne = moje.filter((r) => r.status === 'spremno').length
+  const aktivne = rezervacije.filter((r) => r.moja && jeAktivna(r.status))
 
   return (
-    <div className="px-4 pt-5 pb-8">
-      <div className="flex items-center gap-3">
-        <span aria-hidden className="grid size-11 place-items-center rounded-2xl bg-primary text-primary-fg">
-          <Cross className="size-6" />
-        </span>
-        <div>
-          <h1 className="text-2xl leading-tight font-extrabold">Ima li lijeka?</h1>
-          <p className="text-sm text-muted">Pronađite lijek u apoteci u blizini</p>
-        </div>
-      </div>
+    <>
+      <section aria-labelledby="naslov-pocetna" className="max-w-4xl">
+        <h1 id="naslov-pocetna" className="text-[2.75rem] leading-[1.05]">
+          Pronađite lijek u apoteci u blizini
+        </h1>
+        <p className="mt-3 max-w-[60ch] text-lg text-muted">
+          Provjerite koja od {apoteke.length} apoteka u Sarajevu ima lijek na stanju, rezervišite ga i preuzmite u roku od dva sata.
+        </p>
 
-      {/* Pretraga s automatskim prijedlozima */}
-      <form role="search" onSubmit={naSubmit} className="relative mt-6">
-        <label htmlFor="pretraga-lijeka" className="mb-2 block font-semibold">
-          Koji lijek tražite?
-        </label>
-        <div className="relative">
-          <Search aria-hidden className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted" />
-          <input
-            id="pretraga-lijeka"
-            type="text"
-            role="combobox"
-            autoComplete="off"
-            aria-autocomplete="list"
-            aria-expanded={prikaziListu && prijedlozi.length > 0}
-            aria-controls={listaId}
-            aria-activedescendant={aktivni >= 0 ? `${listaId}-${aktivni}` : undefined}
-            placeholder="npr. Brufen, paracetamol…"
-            value={upit}
-            onChange={(e) => {
-              setUpit(e.target.value)
-              setOtvoren(true)
-              setAktivni(-1)
-            }}
-            onFocus={() => setOtvoren(true)}
-            onBlur={() => setOtvoren(false)}
-            onKeyDown={naTipku}
-            className="h-14 w-full rounded-2xl border-2 border-border bg-surface pr-12 pl-12 text-base placeholder:text-muted focus:border-primary focus:outline-none"
-          />
-          {upit && (
-            <button
-              type="button"
-              aria-label="Obriši pretragu"
-              onClick={() => setUpit('')}
-              className="absolute top-1/2 right-1.5 grid size-11 -translate-y-1/2 place-items-center rounded-xl text-muted hover:text-fg"
-            >
-              <X aria-hidden className="size-5" />
-            </button>
-          )}
-        </div>
-
-        {prikaziListu && (
-          <div className="kartica absolute inset-x-0 top-full z-30 mt-1 overflow-hidden shadow-lg">
-            {prijedlozi.length > 0 ? (
-              <ul id={listaId} role="listbox" aria-label="Prijedlozi lijekova">
-                {prijedlozi.map((l, i) => (
-                  <li
-                    key={l.id}
-                    id={`${listaId}-${i}`}
-                    role="option"
-                    aria-selected={i === aktivni}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => odaberi(l)}
-                    className={cx('flex min-h-14 cursor-pointer items-center gap-3 border-b border-border px-4 py-2 last:border-0', i === aktivni ? 'bg-primary-soft' : 'hover:bg-surface-2')}
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold">
-                        {l.naziv} {l.jacina}
-                      </p>
-                      <p className="truncate text-sm text-muted">
-                        {l.oblik} · {l.aktivnaTvar}
-                      </p>
-                    </div>
-                    {l.naRecept && <OznakaRecept />}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p id={listaId} className="px-4 py-3 text-sm text-muted">
-                Nismo pronašli „{upit.trim()}". Provjerite naziv ili pokušajte s aktivnom tvari (npr. <em>ibuprofen</em>).
-              </p>
-            )}
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <PretragaLijeka velicina="velika" id="pretraga-pocetna" />
           </div>
-        )}
-      </form>
-
-      <Dugme varijanta="sekundarno" velicina="veliko" className="mt-3 w-full" onClick={() => setSkenira(true)}>
-        <ScanBarcode aria-hidden className="size-5" />
-        Skeniraj kutiju lijeka
-      </Dugme>
-
-      <section className="mt-6" aria-labelledby="cesto-trazeno">
-        <h2 id="cesto-trazeno" className="mb-2 text-sm font-semibold text-muted">
-          Često traženo
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {cestoTrazeno.map((id) => {
-            const l = lijekPoId(id)!
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => odaberi(l)}
-                className="min-h-11 rounded-full border-2 border-border bg-surface px-4 text-sm font-semibold hover:border-primary"
-              >
-                {l.naziv} {l.jacina.split('/')[0]}
-              </button>
-            )
-          })}
+          <Dugme varijanta="sekundarno" velicina="veliko" className="h-16 sm:w-auto" onClick={() => setSkenira(true)}>
+            <ScanBarcode aria-hidden className="size-5" />
+            Skeniraj kutiju
+          </Dugme>
         </div>
+
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <span id="cesto-trazeno" className="mr-1 text-sm text-muted">
+            Često traženo:
+          </span>
+          <ul aria-labelledby="cesto-trazeno" className="contents">
+            {cestoTrazeno.map((id) => {
+              const l = lijekPoId(id)!
+              return (
+                <li key={id}>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/pacijent/pretraga?lijek=${id}`)}
+                    className="min-h-11 rounded-full border border-border bg-surface px-4 text-sm font-semibold hover:border-primary hover:text-primary"
+                  >
+                    {l.naziv} {l.jacina.split('/')[0]}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+
+        <ol className="mt-10 grid gap-6 border-t border-border pt-6 text-sm sm:grid-cols-3" aria-label="Kako funkcioniše rezervacija">
+          {[
+            ['Pretražite', 'Upišite naziv lijeka ili aktivnu tvar.'],
+            ['Rezervišite', 'Izaberite apoteku koja ima lijek na stanju.'],
+            ['Preuzmite', 'Pokažite kod rezervacije u roku od 2 sata.'],
+          ].map(([naslov, opis], i) => (
+            <li key={naslov} className="flex gap-3">
+              <span aria-hidden className="etiketa grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-primary">
+                {i + 1}
+              </span>
+              <span>
+                <strong className="block">{naslov}</strong>
+                <span className="text-muted">{opis}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
       </section>
 
-      <section className="mt-6 space-y-3" aria-label="Brzi pristup">
-        <Link to="/pacijent/dezurne" data-bez-podvlake className="kartica flex min-h-20 items-center gap-4 p-4 hover:shadow-md">
-          <span aria-hidden className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
-            <Moon className="size-6" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block font-bold">Dežurne apoteke sada</span>
-            <span className="block text-sm text-muted">
-              {dezurne.length} {mnozina(dezurne.length, 'dežurna', 'dežurne', 'dežurnih')} večeras · najbliža {formatKm(dezurne[0].udaljenostKm)}
-            </span>
-          </span>
-          <ChevronRight aria-hidden className="size-5 text-muted" />
-        </Link>
-        <Link to="/pacijent/rezervacije" data-bez-podvlake className="kartica flex min-h-20 items-center gap-4 p-4 hover:shadow-md">
-          <span aria-hidden className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
-            <ClipboardList className="size-6" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block font-bold">Moje rezervacije</span>
-            <span className="block text-sm text-muted">
-              {moje.length === 0
-                ? 'Nemate aktivnih rezervacija'
-                : `${moje.length} ${mnozina(moje.length, 'aktivna', 'aktivne', 'aktivnih')}${spremne ? ` · ${spremne} spremno za preuzimanje` : ''}`}
-            </span>
-          </span>
-          <ChevronRight aria-hidden className="size-5 text-muted" />
-        </Link>
-      </section>
+      <div className="mt-12 grid items-start gap-6 xl:grid-cols-12">
+        <section aria-labelledby="dezurne-naslov" className="panel overflow-hidden xl:col-span-7">
+          <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+            <div className="flex items-center gap-3">
+              <Cross aria-hidden className="krst-svijetli size-6" strokeWidth={2.75} />
+              <div>
+                <h2 id="dezurne-naslov" className="text-xl">
+                  Dežurne apoteke večeras
+                </h2>
+                <p className="text-sm text-muted">Otvorene cijelu noć, do nedjelje u 08:00</p>
+              </div>
+            </div>
+            <Link to="/pacijent/dezurne" className="min-h-11 content-center rounded-md px-2 text-sm font-semibold text-primary hover:underline">
+              Prikaži na mapi
+            </Link>
+          </div>
+          <div className="divide-y divide-border">
+            {dezurne.map((a) => (
+              <RedApoteke key={a.id} apoteka={a} />
+            ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="moje-naslov" className="panel overflow-hidden xl:col-span-5">
+          <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+            <h2 id="moje-naslov" className="text-xl">
+              Aktivne rezervacije
+            </h2>
+            <Link to="/pacijent/rezervacije" className="min-h-11 content-center rounded-md px-2 text-sm font-semibold text-primary hover:underline">
+              Sve rezervacije
+            </Link>
+          </div>
+          {aktivne.length === 0 ? (
+            <PraznoStanje ikona={<ClipboardList className="size-7" />} naslov="Nemate aktivnih rezervacija" opis="Pretražite lijek iznad i rezervišite ga u apoteci." />
+          ) : (
+            <ul className="divide-y divide-border">
+              {aktivne.map((r) => (
+                <li key={r.id} className="px-5 py-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="font-semibold">{punNazivLijeka(lijekPoId(r.lijekId)!)}</p>
+                    <OznakaRezervacije status={r.status} />
+                  </div>
+                  <p className="mt-1 text-sm text-muted">
+                    {r.kod}, {apotekaPoId(r.apotekaId)!.naziv}. Preuzmite {opisRoka(r.rokPreuzimanja)}.
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
 
       {skenira && (
         <Skener
@@ -204,21 +142,20 @@ export default function Pocetna() {
           }}
         />
       )}
-    </div>
+    </>
   )
 }
 
-/** Simulacija skeniranja kutije: nakon 1,5 s "prepozna" Brufen 400. */
+/** Simulacija skeniranja bar-koda: nakon 1,5 s "prepozna" Brufen 400. */
 function Skener({ onOdustani, onPrepoznato }: { onOdustani: () => void; onPrepoznato: () => void }) {
   const odustaniRef = useRef<HTMLButtonElement>(null)
-  // Callbackovi u ref-u, da se tajmer ne restartuje pri svakom renderu roditelja
   const callbacks = useRef({ onOdustani, onPrepoznato })
   callbacks.current = { onOdustani, onPrepoznato }
 
   useEffect(() => {
     odustaniRef.current?.focus()
     const t = window.setTimeout(() => callbacks.current.onPrepoznato(), 1500)
-    const onKey = (e: globalThis.KeyboardEvent) => e.key === 'Escape' && callbacks.current.onOdustani()
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && callbacks.current.onOdustani()
     document.addEventListener('keydown', onKey)
     return () => {
       window.clearTimeout(t)
@@ -226,22 +163,22 @@ function Skener({ onOdustani, onPrepoznato }: { onOdustani: () => void; onPrepoz
     }
   }, [])
 
-  const host = document.getElementById('modal-root')
-  if (!host) return null
   return createPortal(
-    <div role="dialog" aria-modal="true" aria-label="Skeniranje kutije lijeka" className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-neutral-950 px-8 text-white">
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border-2 border-white/30 bg-neutral-800">
-        <div className="absolute inset-6 rounded-2xl border-4 border-dashed border-white/70" />
-        <div className="skener-linija absolute inset-x-6 h-0.5 bg-emerald-300 shadow-[0_0_12px_2px] shadow-emerald-300" />
+    <div role="dialog" aria-modal="true" aria-label="Skeniranje kutije lijeka" className="fixed inset-0 z-[60] grid place-items-center bg-[rgb(4_14_10/0.92)] p-6 text-white">
+      <div className="flex w-full max-w-md flex-col items-center gap-6">
+        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/25 bg-neutral-800">
+          <div className="absolute inset-6 rounded-xl border-4 border-dashed border-white/70" />
+          <div className="skener-linija absolute inset-x-6 h-0.5 bg-emerald-300 shadow-[0_0_12px_2px] shadow-emerald-300" />
+        </div>
+        <div className="text-center" aria-live="polite">
+          <p className="text-xl font-bold">Skeniranje kutije…</p>
+          <p className="text-white/80">Držite bar-kod lijeka ispred kamere</p>
+        </div>
+        <button ref={odustaniRef} type="button" onClick={onOdustani} className="min-h-11 rounded-lg border-2 border-white px-6 font-semibold hover:bg-white/10">
+          Odustani
+        </button>
       </div>
-      <div className="text-center" aria-live="polite">
-        <p className="text-lg font-bold">Skeniranje kutije…</p>
-        <p className="text-sm text-white/80">Držite bar-kod unutar okvira</p>
-      </div>
-      <button ref={odustaniRef} type="button" onClick={onOdustani} className="min-h-11 rounded-xl border-2 border-white px-6 font-semibold hover:bg-white/10">
-        Odustani
-      </button>
     </div>,
-    host,
+    document.body,
   )
 }

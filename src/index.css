@@ -1,89 +1,111 @@
 @import 'tailwindcss';
 
 /*
- * Paleta: tamnozelena + topla neutralna. Sve boje su CSS varijable, pa tamni način
- * i visoki kontrast rade globalno samo promjenom klase na <html> (.dark / .hc).
- * Svi parovi tekst/pozadina zadovoljavaju WCAG AA (≥ 4.5:1).
+ * Vizuelni identitet "Ima li lijeka?"
+ * - Boje apotekarskog znaka: duboka zelena za navigaciju, svijetla "upaljena" zelena samo za dežurne apoteke.
+ * - Hladna, blago zelenkasta "papirna" pozadina kao uputstvo za lijek (ne krem).
+ * - Atkinson Hyperlegible Next za tekst (dizajniran za slabovide), Archivo Condensed za nazive lijekova
+ *   kao na kutiji lijeka.
+ * Sve boje su CSS varijable: tamni način i visoki kontrast rade zamjenom klase na <html>.
+ * Parovi tekst/pozadina zadovoljavaju WCAG AA.
  */
 :root {
-  --bg: #f7f4ee;
+  --bg: #f1f5f3;
   --surface: #ffffff;
-  --surface-2: #efe9de;
-  --fg: #1c2824;
-  --muted: #55615b;
-  --border: #dcd4c5;
-  --primary: #1f5e4b;
-  --primary-hover: #174a3b;
+  --surface-2: #e8eeeb;
+  --fg: #12261f;
+  --muted: #4b5d55;
+  --border: #d1dbd6;
+  --primary: #0a6b45;
+  --primary-hover: #075637;
   --primary-fg: #ffffff;
-  --primary-soft: #e0ede6;
-  --ok: #1b6a3d;
-  --ok-soft: #e1f1e6;
-  --warn: #7a4e00;
-  --warn-soft: #fbecc9;
-  --bad: #a51c14;
-  --bad-soft: #fbe4e1;
-  --info: #1f4e78;
-  --info-soft: #e2ecf6;
-  --focus: #b4530c;
-  --desk: #e7e0d2;
-  --map-land: #ebe5d8;
-  --map-hill: #e0d9c9;
-  --map-park: #d5e3cc;
-  --map-water: #b6d2da;
+  --primary-soft: #dcefe5;
+  --signal: #23b46e;
+  --ok: #136a3d;
+  --ok-soft: #def2e5;
+  --warn: #7f5000;
+  --warn-soft: #fbeac2;
+  --bad: #a11f19;
+  --bad-soft: #fbe2df;
+  --info: #1c5186;
+  --info-soft: #e0ebf8;
+  --focus: #1f5fd1;
+  --nav: #0c3326;
+  --nav-fg: #e4f0ea;
+  --nav-muted: #a3c2b5;
+  --nav-active: #165340;
+  --nav-border: #1d4a3a;
+  --map-land: #e7ece9;
+  --map-hill: #dce4df;
+  --map-park: #cfe3d3;
+  --map-water: #a9cbd6;
   --map-road: #ffffff;
-  --map-label: #6a706b;
+  --map-label: #4b5d55;
+  /* Boja stubaca u grafikonu – provjerena validatorom (dataviz skill) za svijetlu i tamnu podlogu */
+  --chart: #0a6b45;
   color-scheme: light;
 }
 
 .dark {
-  --bg: #121916;
-  --surface: #1b2420;
-  --surface-2: #24302b;
-  --fg: #e6ede9;
-  --muted: #a5b2ab;
-  --border: #33423b;
-  --primary: #7fcfaa;
-  --primary-hover: #9bdcbd;
-  --primary-fg: #0c1d16;
-  --primary-soft: #1f3a2f;
-  --ok: #86d9a5;
-  --ok-soft: #173426;
-  --warn: #f1c46b;
-  --warn-soft: #3a2d10;
-  --bad: #ffa196;
-  --bad-soft: #3e1a16;
-  --info: #9cc6ef;
-  --info-soft: #182b3d;
-  --focus: #ffb067;
-  --desk: #0b0f0d;
-  --map-land: #1d2622;
-  --map-hill: #222d28;
-  --map-park: #1f3127;
-  --map-water: #23414b;
-  --map-road: #34433c;
-  --map-label: #9aa69f;
+  --bg: #0c1613;
+  --surface: #13201b;
+  --surface-2: #1a2b24;
+  --fg: #e3eee8;
+  --muted: #a1b5ac;
+  --border: #2a3d35;
+  --primary: #52d29b;
+  --primary-hover: #74e0b2;
+  --primary-fg: #04170f;
+  --primary-soft: #133a2a;
+  --signal: #52d29b;
+  --ok: #7fdca3;
+  --ok-soft: #153325;
+  --warn: #f0c56b;
+  --warn-soft: #3a2c0f;
+  --bad: #ff9f94;
+  --bad-soft: #3d1915;
+  --info: #9cc6f0;
+  --info-soft: #172a3d;
+  --focus: #8ab4ff;
+  --nav: #08110e;
+  --nav-fg: #e3eee8;
+  --nav-muted: #93aaa0;
+  --nav-active: #163a2c;
+  --nav-border: #1b2c25;
+  --map-land: #16231e;
+  --map-hill: #1b2b24;
+  --map-park: #1a3226;
+  --map-water: #21414b;
+  --map-road: #2c3f37;
+  --map-label: #a1b5ac;
+  --chart: #2e9e6d;
   color-scheme: dark;
 }
 
 .hc {
   --bg: #ffffff;
   --surface: #ffffff;
-  --surface-2: #f0f0f0;
+  --surface-2: #eeeeee;
   --fg: #000000;
-  --muted: #1f1f1f;
+  --muted: #1c1c1c;
   --border: #000000;
-  --primary: #003d2c;
-  --primary-hover: #002018;
-  --primary-soft: #d9efe5;
+  --primary: #004a2e;
+  --primary-hover: #002a1a;
+  --primary-soft: #d6efe3;
   --ok: #004d22;
   --ok-soft: #ffffff;
-  --warn: #5a3700;
+  --warn: #563500;
   --warn-soft: #ffffff;
-  --bad: #8a0000;
+  --bad: #860000;
   --bad-soft: #ffffff;
-  --info: #002e5c;
+  --info: #002c5a;
   --info-soft: #ffffff;
-  --focus: #c2410c;
+  --focus: #0040c0;
+  --nav: #000000;
+  --nav-fg: #ffffff;
+  --nav-muted: #ffffff;
+  --nav-active: #004a2e;
+  --nav-border: #ffffff;
   --map-label: #000000;
 }
 
@@ -107,11 +129,13 @@
   --info: #a8d4ff;
   --info-soft: #000000;
   --focus: #ffd866;
+  --nav-active: #0f2e22;
   --map-label: #ffffff;
 }
 
 @theme inline {
-  --font-sans: 'Figtree Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Atkinson Hyperlegible Next Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
@@ -122,6 +146,7 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-fg: var(--primary-fg);
   --color-primary-soft: var(--primary-soft);
+  --color-signal: var(--signal);
   --color-ok: var(--ok);
   --color-ok-soft: var(--ok-soft);
   --color-warn: var(--warn);
@@ -130,15 +155,28 @@
   --color-bad-soft: var(--bad-soft);
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
-  --color-desk: var(--desk);
+  --color-chart: var(--chart);
+  --color-nav: var(--nav);
+  --color-nav-fg: var(--nav-fg);
+  --color-nav-muted: var(--nav-muted);
+  --color-nav-active: var(--nav-active);
+  --color-nav-border: var(--nav-border);
 }
 
 @layer base {
-  html {
-    -webkit-tap-highlight-color: transparent;
-  }
   body {
-    @apply bg-desk font-sans text-fg antialiased;
+    @apply bg-bg font-sans text-fg antialiased;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+    font-stretch: 82%;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    line-height: 1.15;
   }
   :focus-visible {
     outline: 3px solid var(--focus);
@@ -149,17 +187,58 @@
   a {
     cursor: pointer;
   }
-  /* U visokom kontrastu svi linkovi su podvučeni, a okviri deblji */
   .hc a:not([data-bez-podvlake]) {
     text-decoration: underline;
   }
-  .hc .kartica {
+  .hc .panel {
     border-width: 2px;
   }
 }
 
-.kartica {
-  @apply rounded-2xl border border-border bg-surface;
+/* Osnovna površina: paneli imaju veći radijus, kontrole manji – hijerarhija, ne isti radijus svuda */
+.panel {
+  @apply rounded-xl border border-border bg-surface;
+}
+
+/* Naziv lijeka kao na kutiji: uski, masni Archivo */
+.etiketa {
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-weight: 750;
+  letter-spacing: 0;
+}
+
+/* Tooltip na hover i fokus (za ikonska dugmad) */
+[data-tooltip] {
+  position: relative;
+}
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms ease 300ms;
+  z-index: 60;
+}
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  opacity: 1;
+}
+
+/* "Upaljeni" apotekarski križ za dežurne apoteke – jedini dekorativni efekat */
+.krst-svijetli {
+  color: var(--signal);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--signal) 70%, transparent));
 }
 
 .skeleton {
@@ -167,38 +246,37 @@
   background-size: 200% 100%;
   animation: skeleton 1.2s ease-in-out infinite;
 }
-
 @keyframes skeleton {
   from { background-position: 200% 0; }
   to { background-position: -200% 0; }
 }
 
-.toast-ulaz {
-  animation: toast-ulaz 180ms ease-out;
+.ulaz {
+  animation: ulaz 160ms ease-out;
 }
-
-@keyframes toast-ulaz {
-  from { opacity: 0; transform: translateY(8px); }
+@keyframes ulaz {
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .skener-linija {
   animation: skener 1.5s ease-in-out infinite;
 }
-
 @keyframes skener {
   0%, 100% { top: 8%; }
   50% { top: 88%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .skeleton, .toast-ulaz, .skener-linija {
-    animation: none;
-  }
+  .skeleton, .ulaz, .skener-linija { animation: none; }
+  [data-tooltip]::after { transition: none; }
 }
 
-/* Tanka traka za skrol unutar okvira telefona na desktopu */
-.skrol {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+/* Zebra redovi u tabelama */
+.zebra > tr:nth-child(even) {
+  background: color-mix(in srgb, var(--surface-2) 55%, transparent);
+}
+
+kbd {
+  @apply rounded border border-border bg-surface-2 px-1.5 py-0.5 font-sans text-xs font-semibold text-muted;
 }

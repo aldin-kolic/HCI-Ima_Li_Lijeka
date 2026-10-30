@@ -48,7 +48,7 @@ export function SvgMapa({ pinovi, odabrana, onOdaberi }: { pinovi: PinMape[]; od
   const sortirani = [...pinovi].sort((a, b) => Number(a.apoteka.id === odabrana) - Number(b.apoteka.id === odabrana))
 
   return (
-    <div className="kartica overflow-hidden">
+    <div className="panel overflow-hidden">
       <svg viewBox="0 0 360 260" className="block h-auto w-full" role="group" aria-label="Mapa dijela Sarajeva s apotekama">
         <rect width="360" height="260" fill="var(--map-land)" />
         {/* Brda */}
@@ -94,8 +94,8 @@ export function SvgMapa({ pinovi, odabrana, onOdaberi }: { pinovi: PinMape[]; od
               transform={`translate(${apoteka.mapa.x} ${apoteka.mapa.y}) scale(${aktivna ? 1.3 : 1})`}
               className="cursor-pointer outline-none [&:focus-visible>.fokus]:opacity-100"
             >
-              {/* Nevidljiva veća površina za dodir */}
-              <circle cx="0" cy="-14" r="20" fill="transparent" />
+              {/* Nevidljiva površina za dodir: r=25 u viewBoxu ≈ 45 px kad je mapa široka ~330 px */}
+              <circle cx="0" cy="-14" r="25" fill="transparent" />
               <circle className="fokus" cx="0" cy="-17" r="16" fill="none" stroke="var(--focus)" strokeWidth="3" opacity="0" />
               <path
                 d="M0,0 C-2,-6 -11,-10 -11,-19 a11,11 0 1,1 22,0 C11,-10 2,-6 0,0 Z"

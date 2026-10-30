@@ -47,14 +47,14 @@ export function sljedeceOtvaranje(apoteka: Apoteka): Date | null {
 }
 
 export function opisRadnogVremena(apoteka: Apoteka): { tekst: string; otvoreno: boolean } {
-  if (apoteka.dezurna) return { tekst: 'Dežurna · otvoreno 24 h', otvoreno: true }
+  if (apoteka.dezurna) return { tekst: 'Dežurna, otvoreno 24 h', otvoreno: true }
   if (jeOtvorenoSada(apoteka)) {
     const interval = intervalZaDan(apoteka, SADA.getDay())!
     return { tekst: `Otvoreno do ${interval.do}`, otvoreno: true }
   }
   const sljedece = sljedeceOtvaranje(apoteka)
   if (!sljedece) return { tekst: 'Zatvoreno', otvoreno: false }
-  return { tekst: `Zatvoreno · otvara ${DANI_KRATKO[sljedece.getDay()]} ${formatVrijeme(sljedece)}`, otvoreno: false }
+  return { tekst: `Zatvoreno, otvara ${DANI_KRATKO[sljedece.getDay()]} ${formatVrijeme(sljedece)}`, otvoreno: false }
 }
 
 export function formatInterval(interval: Interval | null) {

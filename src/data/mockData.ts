@@ -323,5 +323,72 @@ export function pocetneRezervacije(): Rezervacija[] {
   ]
 }
 
+export interface Obavijest {
+  id: string
+  uloga: 'pacijent' | 'farmaceut'
+  naslov: string
+  tekst: string
+  kreirano: Date
+  procitano: boolean
+  link?: string
+}
+
+export function pocetneObavijesti(): Obavijest[] {
+  return [
+    {
+      id: 'o-1',
+      uloga: 'pacijent',
+      naslov: 'Lijek je spreman za preuzimanje',
+      tekst: 'Panadol 500 mg čeka vas u Apoteci Centar. Kod: RZ-3907.',
+      kreirano: prijeMinuta(18),
+      procitano: false,
+      link: '/pacijent/rezervacije',
+    },
+    {
+      id: 'o-2',
+      uloga: 'pacijent',
+      naslov: 'Rezervacija je preuzeta',
+      tekst: 'Cetirizin 10 mg, Apoteka Grbavica. Hvala što koristite Ima li lijeka?',
+      kreirano: new Date(2026, 9, 28, 18, 2),
+      procitano: true,
+      link: '/pacijent/rezervacije?prikaz=zavrsene',
+    },
+    {
+      id: 'o-3',
+      uloga: 'farmaceut',
+      naslov: 'Nova rezervacija RZ-4135',
+      tekst: 'Amra H. rezerviše Brufen 400 mg × 2.',
+      kreirano: prijeMinuta(6),
+      procitano: false,
+      link: '/farmaceut/rezervacije',
+    },
+    {
+      id: 'o-4',
+      uloga: 'farmaceut',
+      naslov: 'Nova rezervacija RZ-4112',
+      tekst: 'Emina B. rezerviše Amoksicilin/klavulanska kiselina 875 mg/125 mg. Lijek je na recept.',
+      kreirano: prijeMinuta(12),
+      procitano: false,
+      link: '/farmaceut/rezervacije',
+    },
+  ]
+}
+
+/** Broj rezervacija po satu za današnji dan u Apoteci Centar (za grafikon na pregledu farmaceuta). */
+export const rezervacijePoSatu: { sat: number; broj: number }[] = [
+  { sat: 8, broj: 3 }, { sat: 9, broj: 5 }, { sat: 10, broj: 7 }, { sat: 11, broj: 6 }, { sat: 12, broj: 4 },
+  { sat: 13, broj: 3 }, { sat: 14, broj: 5 }, { sat: 15, broj: 4 }, { sat: 16, broj: 6 }, { sat: 17, broj: 8 },
+  { sat: 18, broj: 9 }, { sat: 19, broj: 6 }, { sat: 20, broj: 5 }, { sat: 21, broj: 4 }, { sat: 22, broj: 3 },
+]
+
+/** Koliko puta su pacijenti danas tražili lijek (za "traženo, a nema na stanju"). */
+export const pretrageDanas: Record<string, number> = {
+  'augmentin-1g': 14, ventolin: 9, 'nurofen-sirup': 11, 'controloc-20': 6, 'brufen-400': 23, 'panadol-500': 19,
+  'lazolvan-sirup': 7, 'concor-5': 4, linex: 5, 'aspirin-500': 8, 'cetirizin-10': 6, 'amoksiklav-1g': 10,
+  'ibuprofen-400': 9, 'paracetamol-500': 12, 'pantoprazol-20': 3,
+}
+
+export const FARMACEUT_IME = 'Selma K.'
+
 export const apotekaPoId = (id: string) => apoteke.find((a) => a.id === id)
 export const lijekPoId = (id: string) => lijekovi.find((l) => l.id === id)

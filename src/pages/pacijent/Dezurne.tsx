@@ -1,61 +1,44 @@
 import { useState } from 'react'
-import { List, Map as MapIkona, Moon } from 'lucide-react'
+import { Cross } from 'lucide-react'
 import { SADA, apoteke } from '../../data/mockData'
 import { formatDatum, formatVrijeme } from '../../lib/format'
 import { useSimuliranoUcitavanje } from '../../lib/hooks'
-import { KarticaApoteke } from '../../components/KarticaApoteke'
+import { RedApoteke } from '../../components/RedApoteke'
 import { LegendaMape, SvgMapa } from '../../components/SvgMapa'
-import { Segmenti, SkeletonKartice, Zaglavlje } from '../../components/ui'
-
-type Prikaz = 'lista' | 'mapa'
+import { SkeletonRedovi, ZaglavljeStranice } from '../../components/ui'
 
 export default function Dezurne() {
-  const [prikaz, setPrikaz] = useState<Prikaz>('lista')
   const ucitava = useSimuliranoUcitavanje('dezurne', 450)
   const dezurne = apoteke.filter((a) => a.dezurna).sort((a, b) => a.udaljenostKm - b.udaljenostKm)
   const [odabrana, setOdabrana] = useState(dezurne[0].id)
-  const odabranaApoteka = dezurne.find((a) => a.id === odabrana)!
 
   return (
     <>
-      <Zaglavlje naslov="Dežurne apoteke" podnaslov={`Večeras, subota ${formatDatum(SADA)}`} />
-      <div className="space-y-3 p-4">
-        <div className="kartica flex gap-3 bg-primary-soft p-4">
-          <Moon aria-hidden className="size-6 shrink-0 text-primary" />
-          <p className="text-sm">
-            Sada je <strong>{formatVrijeme(SADA)}</strong>. Ove apoteke rade cijelu noć – do nedjelje u 08:00.
-          </p>
-        </div>
-
-        <Segmenti<Prikaz>
-          oznaka="Način prikaza"
-          vrijednost={prikaz}
-          onChange={setPrikaz}
-          opcije={[
-            { vrijednost: 'lista', tekst: 'Lista', ikona: <List aria-hidden className="size-4" /> },
-            { vrijednost: 'mapa', tekst: 'Mapa', ikona: <MapIkona aria-hidden className="size-4" /> },
-          ]}
-        />
-
-        {ucitava ? (
-          <SkeletonKartice />
-        ) : prikaz === 'lista' ? (
-          <ul className="space-y-3">
-            {dezurne.map((a) => (
-              <li key={a.id}>
-                <KarticaApoteke apoteka={a} />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <>
-            <SvgMapa pinovi={dezurne.map((a) => ({ apoteka: a, status: 'dezurna' }))} odabrana={odabrana} onOdaberi={setOdabrana} />
-            <LegendaMape dezurne />
-            <div className="mt-1" aria-live="polite">
-              <KarticaApoteke apoteka={odabranaApoteka} />
+      <ZaglavljeStranice
+        naslov={
+          <span className="flex items-center gap-3">
+            <Cross aria-hidden className="krst-svijetli size-8" strokeWidth={2.75} />
+            Dežurne apoteke
+          </span>
+        }
+        opis={`Subota, ${formatDatum(SADA)} Sada je ${formatVrijeme(SADA)}. Ove apoteke rade cijelu noć, do nedjelje u 08:00.`}
+      />
+      <div className="grid items-start gap-6 xl:grid-cols-12">
+        <section aria-label="Lista dežurnih apoteka" className="panel overflow-hidden xl:col-span-7">
+          {ucitava ? (
+            <SkeletonRedovi broj={3} />
+          ) : (
+            <div className="divide-y divide-border">
+              {dezurne.map((a) => (
+                <RedApoteke key={a.id} apoteka={a} aktivna={a.id === odabrana} onAktiviraj={() => setOdabrana(a.id)} />
+              ))}
             </div>
-          </>
-        )}
+          )}
+        </section>
+        <aside aria-label="Mapa dežurnih apoteka" className="xl:sticky xl:top-24 xl:col-span-5">
+          <SvgMapa pinovi={dezurne.map((a) => ({ apoteka: a, status: 'dezurna' }))} odabrana={odabrana} onOdaberi={setOdabrana} />
+          <LegendaMape dezurne />
+        </aside>
       </div>
     </>
   )
